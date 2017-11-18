@@ -1,19 +1,39 @@
-const express = require('express');
+const async = require('async');
+const request = require('request')
+const fs = require('fs');
+const cheerio = require('cheerio')
 
-const app = express();
+const urls = [
+    {
+        name:'taara',
+        url:'http://rov.wikia.com/wiki/Taara'
+    },
+    {
+        name:'Zuka',
+        url:'http://rov.wikia.com/wiki/Zuka'
+    }
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-});
+]
 
-app.get('/user', (req, res) => {
-    res.status(200),json({
-        name: "Chonratee",
-        Nickname: "Sean"
-    });
-});
+let i = 0
 
-app.listen(3001, () => {
-    console.log("Listen on port 3001")
-});
+const q = async.queue((task, callback) => {
+    request(task.url, (error, response, body) => {
+        $ = cheerio.load(body)
+        const text = $('#mw-content-text').text() 
+        fs.writeFile(task.name+ ".txt", text, (err) => {
+            if(err) {
+                console.log(err);
+                callback()
+            }
+            console.log("Save file complete");
+            callback()
+        })
+    })
+}, 1)
 
+q.drain = () => {
+    console.log("All process complete")
+}
+
+q.push(urls)
