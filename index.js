@@ -1,6 +1,6 @@
-const async = require('async');
+const async = require('async')
 const request = require('request')
-const fs = require('fs');
+const fs = require('fs')
 const cheerio = require('cheerio')
 
 const urls = [
@@ -15,18 +15,16 @@ const urls = [
 
 ]
 
-let i = 0
-
 const q = async.queue((task, callback) => {
     request(task.url, (error, response, body) => {
         $ = cheerio.load(body)
         const text = $('#mw-content-text').text() 
-        fs.writeFile(task.name+ ".txt", text, (err) => {
+        fs.writeFile(task.name + ".txt", text, (err) => {
             if(err) {
-                console.log(err);
+                console.log(err)
                 callback()
             }
-            console.log("Save file complete");
+            console.log("Save file complete")
             callback()
         })
     })
